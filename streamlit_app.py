@@ -53,7 +53,8 @@ if len(mean_reverting_stocks) > 0:
     st.write('Mean-Reverting Stocks:')
     for stock, z_score in mean_reverting_stocks:
         st.write(f"{stock}: {z_score}")
-    st.write('Scatter Plot Matrix:')
-    sns.pairplot(z_scores)
+    st.write('Correlation Matrix:')
+    corr_matrix = z_scores.corr()
+    sns.heatmap(corr_matrix, cmap='coolwarm')
 else:
     st.write('No mean-reverting stocks found.')
