@@ -38,6 +38,42 @@ time_intervals = {
     '5 years': 1825
 }
 
+def find_least_correlated_stocks(correlations, num_stocks):
+    selected_stocks = []
+    remaining_stocks = correlations.columns.tolist()
+
+    while len(selected_stocks) < num_stocks and len(remaining_stocks) > 0:
+        if not selected_stocks:
+            stock = remaining_stocks.pop(0)
+            selected_stocks.append(stock)
+        else:
+            min_corr = float('inf')
+            least_correlated_stock = None
+
+            for stock in remaining_stocks:
+                max_corr = correlations.loc[selected_stocks, stock].abs().max()
+                if max_corr < min_corr:
+                    min_corr = max_corr
+                    least_correlated_stock = stock
+
+            remaining_stocks.remove(least_correlated_stock)
+            selected_stocks.append(least_correlated_stock)
+
+    return selected_stocks
+
+# ... (previous code)
+
+num_stocks_in_portfolio = st.sidebar.slider('Number of stocks in portfolio', 1, len(tickers), 5)
+
+# ... (previous code)
+
+least_correlated_stocks = find_least_correlated_stocks(correlations, num_stocks_in_portfolio)
+portfolio = stock_data.loc[least_correlated_stocks]
+
+st.header("Automatic Portfolio")
+st.write(portfolio[['ATR', 'SMA', 'STD', 'Z_Score']].T)
+
+
 selected_interval = st.sidebar.selectbox('Select time interval', list(time_intervals.keys()))
 
 end_date = "2023-05-07"
