@@ -32,7 +32,7 @@ def identify_mean_reverting_stocks(tickers, z_scores):
     return mean_reverting_stocks
 
 # Define the ticker symbols of the preferred stocks you want to analyze
-tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'FB']
+tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'META']
 
 # Download historical price data for each stock
 prices = download_data(tickers)
