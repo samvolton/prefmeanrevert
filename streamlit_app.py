@@ -2,7 +2,7 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import talib
+import ta-lib
 from itertools import combinations
 
 # Function to download and process data
