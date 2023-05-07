@@ -28,7 +28,7 @@ def get_stock_data(ticker):
     
     return data.iloc[[-1]]
 
-# Preferred stock tickers
+# Preferred stock tickers 
 tickers = ['AAPL', 'GOOGL', 'MSFT']  # Replace with the list of preferred stock tickers
 
 # Streamlit app
