@@ -10,6 +10,7 @@ def download_data(tickers):
     prices = yf.download(tickers, start='2022-02-01', end='2023-05-05')['Adj Close']
     return prices
 
+@st.cache
 def calculate_z_scores(prices):
     # Calculate the rolling mean and standard deviation
     rolling_mean = prices.rolling(window=20).mean()
@@ -19,6 +20,7 @@ def calculate_z_scores(prices):
     z_scores = (prices - rolling_mean) / rolling_std
     return z_scores
 
+@st.cache
 def identify_mean_reverting_stocks(tickers, z_scores):
     # Set the threshold for identifying mean-reverting stocks
     threshold = 2.0
@@ -33,7 +35,7 @@ def identify_mean_reverting_stocks(tickers, z_scores):
     return mean_reverting_stocks
 
 # Define the ticker symbols of the preferred stocks you want to analyze
-tickers = ['BAC-PB', 'BAC-PE', 'BAC-PM', 'BAC-PN', 'BAC-PO', 'BAC-PP', 'BAC-PQ', 'BAC-PS', 'BANFP', 'BEP-PA', 'BEPH', 'BEPI', 'BFS-PD', 'BFS-PE', 'BHFAL', 'BHFAM', 'BHFAN', 'BHFAO', 'BHFAP', 'BHR-PD', 'BIP-PA', 'BIP-PB', 'BIPH', 'BIPI', 'BML-PG', 'BML-PH', 'BML-PJ', 'BML-PL', 'BNH', 'BNJ', 'BOH-PA', 'BPOPM', 'BPOPO', 'BPYPN', 'BPYPO', 'BPYPP', 'BW-PA', 'BWBBP', 'BWNB', 'BWSN', 'C-PJ', 'C-PK', 'C-PN']
+tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'FB']
 
 # Download historical price data for each stock
 prices = download_data(tickers)
