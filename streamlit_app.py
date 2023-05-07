@@ -6,7 +6,7 @@ import streamlit as st
 @st.cache
 def download_data(tickers):
     # Download historical price data for each stock
-    prices = yf.download(tickers, start='2022-02-01', end='2023-05-05')['Adj Close']
+    prices = yf.download(tickers, start='2022-02-01', end='2023-05-06')['Adj Close']
     return prices
 
 @st.cache
