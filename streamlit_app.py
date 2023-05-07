@@ -49,4 +49,18 @@ stock_data = stock_data.set_index('Ticker')
 correlation_data = pd.concat([get_stock_correlations(ticker, start_date, end_date).rename(ticker) for ticker in tickers], axis=1)
 correlations = correlation_data.pct_change().dropna().corr()
 
-min_volume = st.sidebar.slider('Minimum trading volume', 0, 1000000)
+min_volume = st.sidebar.slider('Minimum trading volume', 0, 1000000, 500000)
+
+stock_data = stock_data[stock_data['Volume'] > min_volume]
+
+z_score_threshold = st.sidebar.slider('Z-Score threshold', 0.0, 3.0, 1.5)
+significant_deviation = stock_data[stock_data['Z_Score'].abs() > z_score_threshold]
+
+st.header("Stock Parameters")
+st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
+
+st.header("Correlations")
+st.write(correlations)
+
+st.header("Significant Z-Score Deviations")
+st.write(significant_deviation[['ATR', 'SMA', 'STD', 'Z_Score']].T)
