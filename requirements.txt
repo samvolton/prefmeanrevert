@@ -5,4 +5,4 @@ matplotlib
 numpy
 streamlit
 plotly
-ta-lib
+pandas_ta
