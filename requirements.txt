@@ -6,3 +6,4 @@ numpy
 streamlit
 plotly
 pandas_ta
+itertools
