@@ -84,7 +84,8 @@ st.header("Stock Parameters")
 st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 
 st.header("Correlations")
-st.write(correlations.style.highlight_max(axis=1))
+st.dataframe(correlations.style.highlight_max(axis=1))
+
 
 st.header("Significant Z-Score Deviations")
 significant_deviation = stock_data[stock_data['Z_Score'].abs() > 1.5]
