@@ -29,7 +29,7 @@ def get_stock_data(ticker):
     return data.iloc[[-1]]
 
 # Preferred stock tickers
-tickers = ['BAC-PB', 'BAC-PE', 'BAC-PM', 'BAC-PN', 'BAC-PO', 'BAC-PP', 'BAC-PQ', 'BAC-PS', 'BANFP', 'BEP-PA', 'BEPH', 'BEPI', 'BFS-PD', 'BFS-PE', 'BHFAL', 'BHFAM', 'BHFAN', 'BHFAO', 'BHFAP', 'BHR-PD', 'BIP-PA', 'BIP-PB', 'BIPH', 'BIPI', 'BML-PG', 'BML-PH', 'BML-PJ', 'BML-PL', 'BNH', 'BNJ', 'BOH-PA', 'BPOPM', 'BPOPO', 'BPYPN', 'BPYPO', 'BPYPP', 'BW-PA', 'BWBBP', 'BWNB', 'BWSN', 'C-PJ', 'C-PK', 'C-PN']  # Replace with the list of preferred stock tickers
+tickers = ['AAPL', 'GOOGL', 'MSFT']  # Replace with the list of preferred stock tickers
 
 # Streamlit app
 st.title("Preferred Stocks Analysis")
@@ -41,10 +41,32 @@ with st.spinner('Loading stock data...'):
 stock_data = stock_data.set_index('Ticker')
 
 # Calculate correlations
-correlations = stock_data.T.pct_change().corr()
+correlations = stock_data.T.pct_change().dropna().corr()
+
+# Filter stocks based on minimum trading volume
+min_volume = st.sidebar.slider('Minimum trading volume', 0, 1000000, 500000)
+stock_data = stock_data[stock_data['Volume'] > min_volume]
+
+# Filter stocks based on significant Z-Score deviation
+z_score_threshold = st.sidebar.slider('Z-Score threshold', 0.0, 3.0, 1.5)
+significant_deviation = stock_data[stock_data['Z_Score'].abs() > z_score_threshold]
 
 st.header("Stock Parameters")
 st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 
 st.header("Correlations")
 st.write(correlations)
+
+st.header("Significant Z-Score Deviations")
+st.write(significant_deviation[['ATR', 'SMA', 'STD', 'Z_Score']].T)
+
+# Top gainers and losers
+stock_data['Price_Change'] = stock_data['Close'].pct_change()
+top_gainers = stock_data.nlargest(5, 'Price_Change')
+top_losers = stock_data.nsmallest(5, 'Price_Change')
+
+st.header("Top Gainers")
+st.write(top_gainers[['Close', 'Price_Change']])
+
+st.header("Top Losers")
+st.write(top_losers[['Close', 'Price_Change']])
