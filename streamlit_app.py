@@ -3,6 +3,8 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import pandas_ta as ta
+import seaborn as sns
+import matplotlib.pyplot as plt
 from itertools import combinations
 
 # Function to download and process data
@@ -44,11 +46,8 @@ st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 st.header("Correlations")
 st.write(correlations)
 
-# Uncomment the following lines to display a heatmap of correlations
-# import seaborn as sns
-# import matplotlib.pyplot as plt
 
-# st.header("Correlation Heatmap")
-# plt.figure(figsize=(10, 10))
-# sns.heatmap(correlations, annot=True, cmap='coolwarm', linewidths=0.5, vmin=-1, vmax=1)
-# st.pyplot(plt.gcf())
+st.header("Correlation Heatmap")
+plt.figure(figsize=(10, 10))
+sns.heatmap(correlations, annot=True, cmap='coolwarm', linewidths=0.5, vmin=-1, vmax=1)
+st.pyplot(plt.gcf())
