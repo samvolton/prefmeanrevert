@@ -75,14 +75,48 @@ stock_data = stock_data.set_index('Ticker')
 
 correlations = stock_data.T.pct_change().dropna().corr()
 
+num_stocks_in_portfolio = st.sidebar.slider('Number of stocks in portfolio', 1, len(tickers), 5)
+
+least_correlated_stocks = find_least_correlated_stocks(correlations, num_stocks_in_portfolio)
+portfolio = stock_data.loc[least_correlated_stocks]
+
 st.header("Stock Parameters")
 st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 
 st.header("Correlations")
-st.write(correlations)
+st.write(correlations.style.highlight_max(axis=1))
 
 st.header("Significant Z-Score Deviations")
 significant_deviation = stock_data[stock_data['Z_Score'].abs() > 1.5]
 st.write(significant_deviation[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 
-num_stocks_in_portfolio = st.sidebar.slider('Number of stocks in portfolio', 1,
+st.header("Portfolio Creator")
+
+num_stocks_in_portfolio = st.sidebar.number_input('Number of stocks in portfolio', min_value=1, max_value=len(tickers), value=5, step=1)
+
+correlations_filtered = correlations.copy()
+np.fill_diagonal(correlations_filtered.values, 0)
+
+for stock in stock_data.index:
+    if stock not in least_correlated_stocks:
+        correlations_filtered.drop(stock, axis=0, inplace=True)
+        correlations_filtered.drop(stock, axis=1, inplace=True)
+
+portfolio_tickers = least_correlated_stocks.copy()
+
+for i in range(num_stocks_in_portfolio - len(least_correlated_stocks)):
+    new_stock = correlations_filtered.sum().idxmin()
+    correlations_filtered.drop(new_stock, axis=0, inplace=True)
+    correlations_filtered.drop(new_stock, axis=1, inplace=True)
+    portfolio_tickers.append(new_stock)
+
+st.write("Portfolio tickers:", portfolio_tickers)
+
+portfolio = stock_data.loc[portfolio_tickers]
+st.write(portfolio)
+
+st.header("Portfolio Statistics")
+st.write("Mean Daily Return:", portfolio['Close'].pct_change().mean())
+st.write("Standard Deviation of Daily Returns:", portfolio['Close'].pct_change().std())
+st.write("Sharpe Ratio:", portfolio['Close'].pct_change().mean() / portfolio['Close'].pct_change().std())
+
