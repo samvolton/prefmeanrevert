@@ -2,6 +2,7 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 
 
 # Function to calculate ATR
@@ -69,7 +70,9 @@ time_intervals = {
 
 selected_interval = st.sidebar.selectbox('Time interval for correlations', list(time_intervals.keys()))
 
-start_date, end_date = '2020-01-01', '2023-05-07'
+end_date = datetime.today()
+start_date = end_date - pd.to_timedelta(time_intervals[selected_interval])
+
 stock_data = pd.concat([get_stock_data(ticker, start_date, end_date).assign(Ticker=ticker) for ticker in tickers], ignore_index=True)
 stock_data = stock_data.set_index('Ticker')
 
@@ -86,5 +89,11 @@ st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 st.header("Correlations")
 st.dataframe(correlations.style.highlight_max(axis=1))
 
+st.header("Portfolio")
+
+st.header("Portfolio")
+st.write(portfolio[['ATR', 'SMA', 'STD', 'Z_Score']].T)
+
 st.header("Significant Z-Score Deviations")
-st.write
+significant_z_score_deviations = stock_data[(stock_data['Z_Score'] > 2) | (stock_data['Z_Score'] < -2)]
+st.write(significant_z_score_deviations[['Z_Score']].T)
