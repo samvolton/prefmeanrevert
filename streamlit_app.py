@@ -1,12 +1,14 @@
 import yfinance as yf
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 import streamlit as st
 
 @st.cache
 def download_data(tickers):
     # Download historical price data for each stock
-    prices = yf.download(tickers, start='2022-02-01', end='2023-05-06')['Adj Close']
+    prices = yf.download(tickers, start='2022-02-01', end='2023-05-05')['Adj Close']
     return prices
 
 @st.cache
@@ -34,7 +36,7 @@ def identify_mean_reverting_stocks(tickers, z_scores):
     return mean_reverting_stocks
 
 # Define the ticker symbols of the preferred stocks you want to analyze
-tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'META', 'TSLA', 'NFLX', 'NVDA', 'INTC', 'AMD']
+tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'FB', 'TSLA', 'NFLX', 'NVDA', 'INTC', 'AMD']
 
 # Download historical price data for each stock
 prices = download_data(tickers)
@@ -56,7 +58,8 @@ if len(mean_reverting_stocks) > 0:
         st.write(f"{stock}: {z_score}")
     st.write('Correlation Matrix:')
     corr_matrix = z_scores.corr()
-    corr_table = corr_matrix.style.format("{:.2f}").set_properties(**{'font-size': '8pt'})
-    st.write(corr_table)
+    plt.figure(figsize=(10, 10))
+    sns.heatmap(corr_matrix, cmap='coolwarm', annot=True, fmt='.2f', annot_kws={"fontsize":8})
+    st.pyplot()
 else:
     st.write('No mean-reverting stocks found.')
