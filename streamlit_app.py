@@ -2,21 +2,21 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import ta-lib
+import pandas_ta as ta
 from itertools import combinations
 
 # Function to download and process data
 def get_stock_data(ticker):
     start_date = "2020-01-01"
     end_date = "2023-05-07"
-    
+
     data = yf.download(ticker, start=start_date, end=end_date)
-    
-    data['ATR'] = talib.ATR(data['High'], data['Low'], data['Close'], timeperiod=14)
+
+    data['ATR'] = ta.average_true_range(data['High'], data['Low'], data['Close'])
     data['SMA'] = data['Close'].rolling(window=10).mean()
     data['STD'] = data['Close'].rolling(window=10).std()
     data['Z_Score'] = (data['Close'] - data['SMA']) / data['STD']
-    
+
     return data.iloc[-1]
 
 # Function to calculate pairwise correlation
