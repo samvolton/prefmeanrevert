@@ -36,7 +36,7 @@ def identify_mean_reverting_stocks(tickers, z_scores):
     return mean_reverting_stocks
 
 # Define the ticker symbols of the preferred stocks you want to analyze
-tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'FB', 'TSLA', 'NFLX', 'NVDA', 'INTC', 'AMD']
+tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'META', 'TSLA', 'NFLX', 'NVDA', 'INTC', 'AMD']
 
 # Download historical price data for each stock
 prices = download_data(tickers)
@@ -58,6 +58,8 @@ if len(mean_reverting_stocks) > 0:
         st.write(f"{stock}: {z_score}")
     st.write('Correlation Matrix:')
     corr_matrix = z_scores.corr()
+    corr_matrix.index = tickers
+    corr_matrix.columns = tickers
     plt.figure(figsize=(10, 10))
     sns.heatmap(corr_matrix, cmap='coolwarm', annot=True, fmt='.2f', annot_kws={"fontsize":8})
     st.pyplot()
