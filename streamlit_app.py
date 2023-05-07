@@ -26,13 +26,13 @@ def identify_mean_reverting_stocks(tickers, z_scores):
     mean_reverting_stocks = []
     for ticker in tickers:
         if z_scores[ticker][-1] > threshold:
-            mean_reverting_stocks.append(ticker)
+            mean_reverting_stocks.append((ticker, z_scores[ticker][-1]))
 
     # Return the list of mean-reverting stocks
     return mean_reverting_stocks
 
 # Define the ticker symbols of the preferred stocks you want to analyze
-tickers = ['BAC-PB', 'BAC-PE', 'BAC-PM', 'BAC-PN', 'BAC-PO', 'BAC-PP', 'BAC-PQ', 'BAC-PS', 'BANFP', 'BEP-PA', 'BEPH', 'BEPI', 'BFS-PD', 'BFS-PE', 'BHFAL', 'BHFAM', 'BHFAN', 'BHFAO', 'BHFAP', 'BHR-PD', 'BIP-PA', 'BIP-PB', 'BIPH', 'BIPI', 'BML-PG', 'BML-PH', 'BML-PJ', 'BML-PL', 'BNH', 'BNJ', 'BOH-PA', 'BPOPM', 'BPOPO', 'BPYPN', 'BPYPO', 'BPYPP', 'BW-PA', 'BWBBP', 'BWNB', 'BWSN', 'C-PJ', 'C-PK', 'C-PN']
+tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'FB']
 
 # Download historical price data for each stock
 prices = download_data(tickers)
@@ -47,9 +47,13 @@ mean_reverting_stocks = identify_mean_reverting_stocks(tickers, z_scores)
 st.title('Mean-Reverting Stocks')
 st.write('Historical price data from 2022-02-01 to 2023-05-05')
 st.write(prices)
+
 if len(mean_reverting_stocks) > 0:
     st.write('Mean-Reverting Stocks:')
-    for stock in mean_reverting_stocks:
-        st.write(stock)
+    for stock, z_score in mean_reverting_stocks:
+        st.write(f"{stock}: {z_score}")
+    st.write('Correlation Matrix:')
+    corr_matrix = z_scores.corr()
+    st.heatmap(corr_matrix, cmap='coolwarm')
 else:
     st.write('No mean-reverting stocks found.')
