@@ -1,7 +1,7 @@
 import yfinance as yf
 import numpy as np
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
 import streamlit as st
 
 @st.cache
@@ -52,9 +52,13 @@ corr_matrix.index = tickers
 corr_matrix.columns = tickers
 
 # Create a heatmap of the correlation matrix
-fig = px.imshow(corr_matrix, x=tickers, y=tickers, color_continuous_scale='RdBu', range_color=[-1, 1])
-fig.update_layout(width=800, height=800, title='Correlation Matrix')
-st.plotly_chart(fig)
+fig, ax = plt.subplots(figsize=(10, 10))
+cax = ax.matshow(corr_matrix, cmap='coolwarm')
+fig.colorbar(cax)
+ax.set_xticklabels([''] + list(corr_matrix.columns), rotation=90)
+ax.set_yticklabels([''] + list(corr_matrix.index))
+st.write('Correlation Matrix:')
+st.pyplot(fig)
 
 # Create a Streamlit web app
 st.title('Mean-Reverting Stocks')
