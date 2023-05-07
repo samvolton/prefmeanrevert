@@ -75,28 +75,14 @@ stock_data = stock_data.set_index('Ticker')
 
 correlations = stock_data.T.pct_change().dropna().corr()
 
-num_stocks_in_portfolio = st.sidebar.slider('Number of stocks in portfolio', 1, len(tickers), 5)
-
-least_correlated_stocks = find_least_correlated_stocks(correlations, num_stocks_in_portfolio)
-portfolio = stock_data.loc[least_correlated_stocks]
-
 st.header("Stock Parameters")
 st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 
 st.header("Correlations")
-st.dataframe(correlations.style.highlight_max(axis=1))
+st.write(correlations)
 
 st.header("Significant Z-Score Deviations")
-
 significant_deviation = stock_data[stock_data['Z_Score'].abs() > 1.5]
 st.write(significant_deviation[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 
-st.header("Portfolio Creator")
-
-num_stocks_in_portfolio = st.sidebar.slider('Number of stocks in portfolio', 1, len(tickers), 5)
-
-least_correlated_stocks = find_least_correlated_stocks(correlations, num_stocks_in_portfolio)
-portfolio = stock_data.loc[least_correlated_stocks]
-
-st.write(f"Selected stocks based on least correlation: {', '.join(least_correlated_stocks)}")
-st.write(portfolio[['ATR', 'SMA', 'STD', 'Z_Score']].T)
+num_stocks_in_portfolio = st.sidebar.slider('Number of stocks in portfolio', 1,
