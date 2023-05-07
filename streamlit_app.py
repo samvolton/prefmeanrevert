@@ -47,6 +47,27 @@ z_scores = calculate_z_scores(prices)
 # Identify mean-reverting stocks
 mean_reverting_stocks = identify_mean_reverting_stocks(tickers, z_scores)
 
+# Group the tickers by sector
+sectors = {}
+for ticker in tickers:
+    sector = yf.Ticker(ticker).info['sector']
+    if sector not in sectors:
+        sectors[sector] = [ticker]
+    else:
+        sectors[sector].append(ticker)
+
+# Create a correlation matrix for each sector
+for sector, sector_tickers in sectors.items():
+    st.write(f'{sector} Correlation Matrix:')
+    sector_prices = download_data(sector_tickers)
+    sector_z_scores = calculate_z_scores(sector_prices)
+    corr_matrix = sector_z_scores.corr()
+    corr_matrix.index = sector_tickers
+    corr_matrix.columns = sector_tickers
+    plt.figure(figsize=(10, 10))
+    sns.heatmap(corr_matrix, cmap='coolwarm', annot=True, fmt='.2f', annot_kws={"fontsize":8})
+    st.pyplot()
+
 # Create a Streamlit web app
 st.title('Mean-Reverting Stocks')
 st.write('Z-Scores from 2022-02-01 to 2023-05-05')
@@ -56,12 +77,5 @@ if len(mean_reverting_stocks) > 0:
     st.write('Mean-Reverting Stocks:')
     for stock, z_score in mean_reverting_stocks:
         st.write(f"{stock}: {z_score}")
-    st.write('Correlation Matrix:')
-    corr_matrix = z_scores.corr()
-    corr_matrix.index = tickers
-    corr_matrix.columns = tickers
-    plt.figure(figsize=(10, 10))
-    sns.heatmap(corr_matrix, cmap='coolwarm', annot=True, fmt='.2f', annot_kws={"fontsize":8})
-    st.pyplot()
 else:
     st.write('No mean-reverting stocks found.')
