@@ -26,7 +26,7 @@ def get_stock_data(ticker):
     data['STD'] = data['Close'].rolling(window=10).std()
     data['Z_Score'] = (data['Close'] - data['SMA']) / data['STD']
     
-    return data.iloc[-1]
+    return data.iloc[[-1]]
 
 # Preferred stock tickers
 tickers = ['AAPL', 'GOOGL', 'MSFT']  # Replace with the list of preferred stock tickers
@@ -36,9 +36,9 @@ st.title("Preferred Stocks Analysis")
 
 with st.spinner('Loading stock data...'):
     # Download and process data
-    stock_data = pd.DataFrame()
-    for i, ticker in enumerate(tickers):
-        stock_data[ticker] = get_stock_data(ticker)
+    stock_data = pd.concat([get_stock_data(ticker).assign(Ticker=ticker) for ticker in tickers], ignore_index=True)
+
+stock_data = stock_data.set_index('Ticker')
 
 # Calculate correlations
 correlations = stock_data.T.pct_change().corr()
