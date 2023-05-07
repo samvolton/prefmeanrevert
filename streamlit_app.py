@@ -1,73 +1,54 @@
-import yfinance as yf
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import talib
+from itertools import combinations
 
-@st.cache
-def download_data(tickers):
-    # Download historical price data for each stock
-    prices = yf.download(tickers, start='2022-02-01', end='2023-05-05')['Adj Close']
-    return prices
+# Function to download and process data
+def get_stock_data(ticker):
+    start_date = "2020-01-01"
+    end_date = "2023-05-07"
+    
+    data = yf.download(ticker, start=start_date, end=end_date)
+    
+    data['ATR'] = talib.ATR(data['High'], data['Low'], data['Close'], timeperiod=14)
+    data['SMA'] = data['Close'].rolling(window=10).mean()
+    data['STD'] = data['Close'].rolling(window=10).std()
+    data['Z_Score'] = (data['Close'] - data['SMA']) / data['STD']
+    
+    return data.iloc[-1]
 
-@st.cache
-def calculate_z_scores(prices):
-    # Calculate the rolling mean and standard deviation
-    rolling_mean = prices.rolling(window=20).mean()
-    rolling_std = prices.rolling(window=20).std()
+# Function to calculate pairwise correlation
+def pairwise_correlation(data, tickers):
+    corr_data = data[tickers].pct_change().corr()
+    return corr_data
 
-    # Calculate the z-score for each stock price
-    z_scores = (prices - rolling_mean) / rolling_std
-    return z_scores
+# Preferred stock tickers
+tickers = ['AAPL', 'GOOGL', 'MSFT']  # Replace with the list of preferred stock tickers
 
-@st.cache
-def identify_mean_reverting_stocks(tickers, z_scores):
-    # Set the threshold for identifying mean-reverting stocks
-    threshold = 2.0
+# Download and process data
+stock_data = pd.DataFrame()
+for ticker in tickers:
+    stock_data[ticker] = get_stock_data(ticker)
 
-    # Identify mean-reverting stocks
-    mean_reverting_stocks = []
-    for ticker in tickers:
-        if z_scores[ticker][-1] > threshold:
-            mean_reverting_stocks.append((ticker, z_scores[ticker][-1]))
+# Calculate correlations
+correlations = pairwise_correlation(stock_data, tickers)
 
-    # Return the list of mean-reverting stocks
-    return mean_reverting_stocks
+# Streamlit app
+st.title("Preferred Stocks Analysis")
 
-# Define the ticker symbols of the preferred stocks you want to analyze
-tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'FB', 'TSLA', 'NFLX', 'NVDA', 'INTC', 'AMD']
+st.header("Stock Parameters")
+st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
 
-# Download historical price data for each stock
-prices = download_data(tickers)
+st.header("Correlations")
+st.write(correlations)
 
-# Calculate the z-score for each stock price
-z_scores = calculate_z_scores(prices)
+# Uncomment the following lines to display a heatmap of correlations
+# import seaborn as sns
+# import matplotlib.pyplot as plt
 
-# Identify mean-reverting stocks
-mean_reverting_stocks = identify_mean_reverting_stocks(tickers, z_scores)
-
-# Create a correlation matrix for all stocks
-corr_matrix = z_scores.corr()
-corr_matrix.index = tickers
-corr_matrix.columns = tickers
-
-# Create a heatmap of the correlation matrix
-fig, ax = plt.subplots(figsize=(10, 10))
-cax = ax.matshow(corr_matrix, cmap='coolwarm')
-fig.colorbar(cax)
-ax.set_xticklabels([''] + list(corr_matrix.columns), rotation=90)
-ax.set_yticklabels([''] + list(corr_matrix.index))
-st.write('Correlation Matrix:')
-st.pyplot(fig)
-
-# Create a Streamlit web app
-st.title('Mean-Reverting Stocks')
-st.write('Z-Scores from 2022-02-01 to 2023-05-05')
-st.write(z_scores)
-
-if len(mean_reverting_stocks) > 0:
-    st.write('Mean-Reverting Stocks:')
-    for stock, z_score in mean_reverting_stocks:
-        st.write(f"{stock}: {z_score}")
-else:
-    st.write('No mean-reverting stocks found.')
+# st.header("Correlation Heatmap")
+# plt.figure(figsize=(10, 10))
+# sns.heatmap(correlations, annot=True, cmap='coolwarm', linewidths=0.5, vmin=-1, vmax=1)
+# st.pyplot(plt.gcf())
