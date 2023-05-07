@@ -31,8 +31,8 @@ tickers = ['MSFT', 'AAPL', 'META', 'GOOGL', 'AMD', 'AMZN']
 st.title("Preferred Stocks Analysis")
 
 date_ranges = {
-    '1 Day': ('2023-05-06', '2023-05-07'),
     '1 Week': ('2023-04-30', '2023-05-07'),
+    '10 Days': ('2023-04-27', '2023-05-07'),
     '1 Month': ('2023-04-07', '2023-05-07'),
     '1 Year': ('2022-05-07', '2023-05-07'),
     '2 Years': ('2021-05-07', '2023-05-07'),
@@ -49,18 +49,4 @@ stock_data = stock_data.set_index('Ticker')
 correlation_data = pd.concat([get_stock_correlations(ticker, start_date, end_date).rename(ticker) for ticker in tickers], axis=1)
 correlations = correlation_data.pct_change().dropna().corr()
 
-min_volume = st.sidebar.slider('Minimum trading volume', 0, 1000000, 500000)
-stock_data = stock_data[stock_data['Volume'] > min_volume]
-
-z_score_threshold = st.sidebar.slider('Z-Score threshold', 0.0, 3.0, 1.5)
-significant_deviation = stock_data[stock_data['Z_Score'].abs() > z_score_threshold]
-
-st.header("Stock Parameters")
-st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
-
-st.header("Correlations")
-st.write(correlations)
-
-st.header("Significant Z-Score Deviations")
-st.write(significant_deviation[['ATR', 'SMA', 'STD', 'Z_Score']].T)
-
+min_volume = st.sidebar.slider('Minimum trading volume', 0, 1000000, 
