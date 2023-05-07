@@ -49,4 +49,4 @@ stock_data = stock_data.set_index('Ticker')
 correlation_data = pd.concat([get_stock_correlations(ticker, start_date, end_date).rename(ticker) for ticker in tickers], axis=1)
 correlations = correlation_data.pct_change().dropna().corr()
 
-min_volume = st.sidebar.slider('Minimum trading volume', 0, 1000000, 
+min_volume = st.sidebar.slider('Minimum trading volume', 0, 1000000)
