@@ -2,7 +2,16 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import pyti.average_true_range as atr
+
+# Function to calculate ATR
+def calculate_atr(high, low, close, n=14):
+    hl = high - low
+    hc = (high - close.shift()).abs()
+    lc = (low - close.shift()).abs()
+
+    tr = pd.concat([hl, hc, lc], axis=1).max(axis=1)
+    atr = tr.ewm(alpha=1/n, adjust=False).mean()
+    return atr
 
 # Function to download and process data
 @st.cache(suppress_st_warning=True, show_spinner=False)
@@ -12,7 +21,7 @@ def get_stock_data(ticker):
     
     data = yf.download(ticker, start=start_date, end=end_date)
     
-    data['ATR'] = atr.average_true_range(data['High'], data['Low'], data['Close'], 14)
+    data['ATR'] = calculate_atr(data['High'], data['Low'], data['Close'], 14)
     data['SMA'] = data['Close'].rolling(window=10).mean()
     data['STD'] = data['Close'].rolling(window=10).std()
     data['Z_Score'] = (data['Close'] - data['SMA']) / data['STD']
