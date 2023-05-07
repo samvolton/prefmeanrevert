@@ -31,8 +31,6 @@ tickers = ['AAIC-PB', 'AAIC-PC', 'AAIN', 'AAM-PA', 'AAM-PB', 'ABR-PD', 'ABR-PE',
 st.title("Preferred Stocks Analysis")
 
 time_intervals = {
-    '1 week': 7,
-    '10 days': 10,
     '1 month': 30,
     '1 year': 365,
     '2 years': 730,
