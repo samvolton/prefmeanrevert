@@ -52,7 +52,7 @@ with st.spinner('Loading stock data...'):
 
 stock_data = stock_data.set_index('Ticker')
 
-correlations = stock_data.T.pct_change().dropna().corr()
+correlations = stock_data.pct_change().dropna().T.corr()
 
 st.header("Stock Parameters")
 st.write(stock_data[['ATR', 'SMA', 'STD', 'Z_Score']].T)
