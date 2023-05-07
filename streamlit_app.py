@@ -1,8 +1,7 @@
 import yfinance as yf
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 import streamlit as st
 
 @st.cache
@@ -47,26 +46,15 @@ z_scores = calculate_z_scores(prices)
 # Identify mean-reverting stocks
 mean_reverting_stocks = identify_mean_reverting_stocks(tickers, z_scores)
 
-# Group the tickers by sector
-sectors = {}
-for ticker in tickers:
-    sector = yf.Ticker(ticker).info['sector']
-    if sector not in sectors:
-        sectors[sector] = [ticker]
-    else:
-        sectors[sector].append(ticker)
+# Create a correlation matrix for all stocks
+corr_matrix = z_scores.corr()
+corr_matrix.index = tickers
+corr_matrix.columns = tickers
 
-# Create a correlation matrix for each sector
-for sector, sector_tickers in sectors.items():
-    st.write(f'{sector} Correlation Matrix:')
-    sector_prices = download_data(sector_tickers)
-    sector_z_scores = calculate_z_scores(sector_prices)
-    corr_matrix = sector_z_scores.corr()
-    corr_matrix.index = sector_tickers
-    corr_matrix.columns = sector_tickers
-    plt.figure(figsize=(10, 10))
-    sns.heatmap(corr_matrix, cmap='coolwarm', annot=True, fmt='.2f', annot_kws={"fontsize":8})
-    st.pyplot()
+# Create a heatmap of the correlation matrix
+fig = px.imshow(corr_matrix, x=tickers, y=tickers, color_continuous_scale='RdBu', range_color=[-1, 1])
+fig.update_layout(width=800, height=800, title='Correlation Matrix')
+st.plotly_chart(fig)
 
 # Create a Streamlit web app
 st.title('Mean-Reverting Stocks')
